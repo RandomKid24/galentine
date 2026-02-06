@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import Header from './components/Header';
@@ -15,16 +14,13 @@ const App: React.FC = () => {
     email: '',
     ticketId: '',
     additionalNames: [],
-    wantsUpdates: true,
-    paymentReceipt: null
+    wantsUpdates: true
   });
 
-  const [errors, setErrors] = useState<{ email?: string; phone?: string }>({});
-  const [touched, setTouched] = useState<{ email?: boolean; phone?: boolean }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [aiQuote, setAiQuote] = useState<string | null>(null);
+  const [aiGreeting, setAiGreeting] = useState<{ title: string; subtitle: string } | null>(null);
   const [backendState, setBackendState] = useState<{ usedSeats: number; loading: boolean }>({
     usedSeats: USED_EARLY_BIRD_SEATS,
     loading: true
@@ -33,358 +29,240 @@ const App: React.FC = () => {
   useEffect(() => {
     const initApp = async () => {
       try {
-        await new Promise(r => setTimeout(r, 800));
-        
         const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
         const response = await ai.models.generateContent({
           model: 'gemini-3-flash-preview',
-          contents: "Generate a sophisticated greeting for a high-end private feminine event. One short sentence only. No emojis.",
+          contents: "Generate a poetic title and a one-sentence elegant subtitle for a Galentine's party registration page called 'Velvet Whispers and Gilded Grace'. Focus on luxury, friendship, and softness. No emojis. Format as JSON with 'title' and 'subtitle' keys.",
+          config: { responseMimeType: "application/json" }
         });
         
-        setAiQuote(response.text?.trim() || "A sanctuary for grace, friendship, and the beauty of shared paths.");
-        setBackendState({ 
-          usedSeats: USED_EARLY_BIRD_SEATS, 
-          loading: false 
-        });
-        setFormData(prev => ({ ...prev, ticketId: TICKETS[0].id }));
+        const data = JSON.parse(response.text || '{"title": "Velvet Whispers and Gilded Grace", "subtitle": "An evening of soft indulgence dedicated to the luminous power of enduring friendship."}');
+        setAiGreeting(data);
+        setBackendState({ usedSeats: USED_EARLY_BIRD_SEATS, loading: false });
+        
+        const initialTicket = USED_EARLY_BIRD_SEATS >= TOTAL_EARLY_BIRD_SEATS 
+          ? TICKETS.find(t => t.id === 'regular-pass')?.id || TICKETS[1].id
+          : TICKETS[0].id;
+        
+        setFormData(prev => ({ ...prev, ticketId: initialTicket }));
       } catch (e) {
+        setAiGreeting({ 
+          title: "Velvet Whispers and Gilded Grace", 
+          subtitle: "An evening of soft indulgence dedicated to the luminous power of enduring friendship." 
+        });
         setBackendState({ usedSeats: USED_EARLY_BIRD_SEATS, loading: false });
       }
     };
     initApp();
   }, []);
 
-  const isEarlyBirdAvailable = useMemo(() => {
-    return backendState.usedSeats < TOTAL_EARLY_BIRD_SEATS;
-  }, [backendState.usedSeats]);
-
-  const selectedTicket = useMemo(() => {
-    return TICKETS.find(t => t.id === formData.ticketId) || TICKETS[1];
-  }, [formData.ticketId]);
-
-  const validateEmail = (email: string) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return undefined;
-    return re.test(email) ? undefined : 'Please enter a valid email address';
-  };
-
-  const validatePhone = (phone: string) => {
-    const re = /^[6-9]\d{9}$/; 
-    if (!phone) return undefined;
-    const cleanPhone = phone.replace(/\D/g, '');
-    if (cleanPhone.length > 0 && cleanPhone.length !== 10) return 'Phone number must be 10 digits';
-    return re.test(cleanPhone) ? undefined : 'Please enter a valid 10-digit mobile number';
-  };
+  const isEarlyBirdAvailable = useMemo(() => backendState.usedSeats < TOTAL_EARLY_BIRD_SEATS, [backendState.usedSeats]);
+  const selectedTicket = useMemo(() => TICKETS.find(t => t.id === formData.ticketId) || TICKETS[1], [formData.ticketId]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
-
-    if (name === 'email') setErrors(prev => ({ ...prev, email: validateEmail(value) }));
-    if (name === 'phone') setErrors(prev => ({ ...prev, phone: validatePhone(value) }));
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    setTouched(prev => ({ ...prev, [e.target.name]: true }));
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleTicketSelect = (id: string) => {
     const ticket = TICKETS.find(t => t.id === id);
+    if (!ticket) return;
     setFormData(prev => ({
       ...prev,
       ticketId: id,
-      additionalNames: Array(ticket ? ticket.maxPeople - 1 : 0).fill('')
+      additionalNames: Array(ticket.maxPeople - 1).fill('')
     }));
   };
 
-  const handleAdditionalNameChange = (index: number, value: string) => {
-    setFormData(prev => {
-      const newNames = [...prev.additionalNames];
-      newNames[index] = value;
-      return { ...prev, additionalNames: newNames };
-    });
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFormData(prev => ({ ...prev, paymentReceipt: e.target.files![0] }));
-    }
-  };
-
-  const isFormValid = useMemo(() => {
-    return (
-      formData.fullName.trim() !== '' &&
-      formData.email.trim() !== '' &&
-      formData.phone.trim() !== '' &&
-      !errors.email &&
-      !errors.phone &&
-      formData.paymentReceipt !== null
-    );
-  }, [formData, errors]);
+  const isFormValid = useMemo(() => (
+    formData.fullName.trim() !== '' && 
+    formData.email.includes('@') && 
+    formData.phone.trim().length === 10 &&
+    formData.additionalNames.every(name => name.trim() !== '')
+  ), [formData]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) {
-      setTouched({ email: true, phone: true });
-      return;
-    }
-    setShowConfirmModal(true);
-  };
-
-  const handleFinalSubmit = async () => {
-    setShowConfirmModal(false);
-    setIsSubmitting(true);
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    setIsSubmitting(false);
-    setIsSuccess(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (isFormValid) setShowConfirmModal(true);
   };
 
   if (backendState.loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-center">
-          <div className="w-12 h-12 border-2 border-pink-100 border-t-pink-500 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-[10px] font-black text-gray-400 tracking-[0.4em] uppercase">Initializing</p>
-        </div>
+        <div className="w-10 h-10 border-4 border-rose-50 border-t-rose-500 rounded-full animate-spin"></div>
       </div>
     );
   }
 
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-soft-gradient">
-        <div className="max-w-md w-full bg-white rounded-[2.5rem] p-12 shadow-2xl text-center border border-pink-50 animate-fade-up">
-          <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-8">
-            <svg className="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-serif font-black text-gray-900 mb-4">Request Logged</h2>
-          <p className="text-gray-600 text-lg mb-10 leading-relaxed font-medium">
-            Your application is being processed. Expect an invitation link via email shortly.
-          </p>
-          <button 
-            onClick={() => setIsSuccess(false)}
-            className="w-full py-5 bg-pink-600 text-white rounded-2xl font-black shadow-xl hover:bg-pink-700 transition-all active:scale-95 uppercase tracking-widest text-xs"
-          >
-            Done
-          </button>
-        </div>
-      </div>
-    );
-  }
+  const inputClasses = "w-full px-6 py-4 rounded-xl border-2 border-rose-100 bg-rose-50/10 focus:border-rose-400 focus:bg-white focus:ring-4 focus:ring-rose-50/50 outline-none transition-all text-[15px] font-medium text-rose-900 placeholder:text-rose-200 shadow-sm";
 
   return (
-    <div className="min-h-screen pb-40 bg-soft-gradient">
+    <div className="min-h-screen pb-24 relative">
       <Header />
-      
+
       <ConfirmModal 
-        isOpen={showConfirmModal}
-        onClose={() => setShowConfirmModal(false)}
-        onConfirm={handleFinalSubmit}
-        ticket={selectedTicket}
-        fullName={formData.fullName}
+        isOpen={showConfirmModal} 
+        onClose={() => setShowConfirmModal(false)} 
+        onConfirm={async () => {
+          setShowConfirmModal(false);
+          setIsSubmitting(true);
+          await new Promise(r => setTimeout(r, 2000));
+          setIsSuccess(true);
+          setIsSubmitting(false);
+        }} 
+        ticket={selectedTicket} 
+        fullName={formData.fullName} 
       />
 
-      <main id="registration-form" className="max-w-6xl mx-auto px-6 -mt-32 relative z-20">
-        <div className="bg-white rounded-[3rem] shadow-[0_40px_80px_-20px_rgba(190,24,93,0.1)] overflow-hidden border border-white">
-          <div className="p-8 md:p-16">
-            <div className="mb-20 text-center">
-              <span className="bg-pink-100 text-pink-700 text-[10px] font-black px-5 py-2 rounded-full uppercase tracking-widest mb-8 inline-block">Secure Admission</span>
-              <h2 className="text-4xl md:text-6xl font-serif text-gray-900 mb-8 font-black tracking-tight leading-tight">The Registry</h2>
-              {aiQuote && (
-                <p className="text-gray-600 italic font-elegant text-2xl max-w-2xl mx-auto animate-fade-up leading-relaxed font-medium">
-                  "{aiQuote}"
-                </p>
-              )}
+      {isSuccess && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-6 glass">
+          <div className="max-w-md w-full bg-white rounded-[2.5rem] p-12 shadow-2xl border border-rose-100 text-center animate-entrance">
+            <div className="w-16 h-16 bg-rose-600 text-white rounded-full flex items-center justify-center mx-auto mb-8 shadow-xl shadow-rose-200">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <h2 className="text-3xl font-serif text-rose-900 mb-4">See you there!</h2>
+            <p className="text-rose-600/70 mb-8 font-medium leading-relaxed">Your registration has been confirmed. An official digital invite will arrive in your inbox shortly.</p>
+            <button onClick={() => window.location.reload()} className="w-full py-4 bg-rose-950 text-white rounded-xl font-bold tracking-widest text-[11px] uppercase hover:bg-black transition-all shadow-xl shadow-rose-100">Close</button>
+          </div>
+        </div>
+      )}
+
+      <main id="registration-form" className="max-w-4xl mx-auto px-6 -mt-24 relative z-20">
+        <div className="bg-white/95 rounded-[3rem] shadow-[0_40px_100px_-20px_rgba(157,23,77,0.1)] border border-white overflow-hidden glass">
+          <div className="p-8 md:p-12 relative">
+            <div className="text-center mb-10">
+              <span className="inline-block px-4 py-1.5 bg-rose-50 text-rose-600 text-[10px] font-bold tracking-[0.4em] uppercase rounded-full mb-6 shadow-sm border border-rose-100">
+                Secure Your Spot
+              </span>
+              <h2 className="text-4xl md:text-5xl font-serif text-rose-950 mb-3 tracking-tighter italic">
+                {aiGreeting?.title}
+              </h2>
+              <p className="text-lg font-display font-medium text-rose-900/60 max-w-2xl mx-auto italic leading-relaxed">
+                {aiGreeting?.subtitle}
+              </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-24">
-              <section>
-                <div className="flex items-center gap-4 mb-12 pb-5 border-b border-pink-50">
-                  <div className="w-10 h-10 rounded-xl bg-pink-600 flex items-center justify-center text-white">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 tracking-tight">Personal Profile</h3>
+            <form onSubmit={handleSubmit} className="space-y-12">
+              {/* Identity Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-5 border-b border-rose-50 pb-4">
+                   <div className="w-10 h-10 rounded-2xl bg-rose-950 text-white flex items-center justify-center text-lg font-serif italic shadow-lg shadow-rose-100">01</div>
+                   <h3 className="text-2xl font-serif text-rose-950 italic">Identity</h3>
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Legal Name</label>
-                    <input
-                      required
-                      type="text"
-                      name="fullName"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      placeholder="Ananya Sharma"
-                      className="w-full px-7 py-5 rounded-2xl border-2 border-gray-100 focus:border-pink-500 focus:bg-white outline-none transition-all text-gray-900 bg-gray-50/50 text-lg font-medium"
-                    />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em] px-1">Your Name</label>
+                    <input required type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} placeholder="Your name" className={inputClasses} />
                   </div>
-
-                  <div className="space-y-3">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Contact Link</label>
-                    <input
-                      required
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      placeholder="10-digit primary"
-                      className={`w-full px-7 py-5 rounded-2xl border-2 outline-none transition-all text-gray-900 bg-gray-50/50 text-lg font-medium
-                        ${touched.phone && errors.phone ? 'border-rose-300 bg-rose-50' : 'border-gray-100 focus:border-pink-500 focus:bg-white'}`}
-                    />
-                    {touched.phone && errors.phone && <p className="text-xs text-rose-500 font-bold ml-2 tracking-wide">{errors.phone}</p>}
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em] px-1">Mobile Number</label>
+                    <input required type="tel" name="phone" value={formData.phone} onChange={handleInputChange} placeholder="Phone" className={inputClasses} />
                   </div>
-
-                  <div className="md:col-span-2 space-y-3">
-                    <label className="text-xs font-black text-gray-400 uppercase tracking-widest ml-1">Digital Address</label>
-                    <input
-                      required
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onBlur={handleBlur}
-                      onChange={handleInputChange}
-                      placeholder="your@email.com"
-                      className={`w-full px-7 py-5 rounded-2xl border-2 outline-none transition-all text-gray-900 bg-gray-50/50 text-lg font-medium
-                        ${touched.email && errors.email ? 'border-rose-300 bg-rose-50' : 'border-gray-100 focus:border-pink-500 focus:bg-white'}`}
-                    />
-                    {touched.email && errors.email && <p className="text-xs text-rose-500 font-bold ml-2 tracking-wide">{errors.email}</p>}
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.25em] px-1">Email Address</label>
+                    <input required type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Invite destination" className={inputClasses} />
                   </div>
                 </div>
-              </section>
+              </div>
 
-              <section>
-                <div className="flex justify-between items-end mb-12 pb-5 border-b border-pink-50">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-pink-600 flex items-center justify-center text-white">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                      </svg>
+              {/* Selection Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-5 border-b border-rose-50 pb-4">
+                   <div className="w-10 h-10 rounded-2xl bg-rose-950 text-white flex items-center justify-center text-lg font-serif italic shadow-lg shadow-rose-100">02</div>
+                   <h3 className="text-2xl font-serif text-rose-950 italic">Selection</h3>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="px-2">
+                    <h4 className="text-xl font-display font-bold text-gray-800">Registration Fee</h4>
+                    <p className="text-2xl font-bold text-gray-900 mt-1">₹{selectedTicket.price.toLocaleString('en-IN')}.00</p>
+                  </div>
+                  
+                  <div className="flex flex-col gap-2">
+                    {TICKETS.map(ticket => (
+                      <TicketCard 
+                        key={ticket.id} 
+                        ticket={ticket} 
+                        isSelected={formData.ticketId === ticket.id} 
+                        onSelect={handleTicketSelect} 
+                        disabled={ticket.id === 'early-bird' && !isEarlyBirdAvailable} 
+                      />
+                    ))}
+                  </div>
+
+                  {isEarlyBirdAvailable && (
+                    <div className="px-4 py-2 bg-emerald-50 rounded-xl border border-emerald-100 inline-flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span className="text-[10px] font-bold text-emerald-700 tracking-wider uppercase">
+                        Only {TOTAL_EARLY_BIRD_SEATS - backendState.usedSeats} early bird spots left
+                      </span>
                     </div>
-                    <h3 className="text-2xl font-black text-gray-900 tracking-tight">Pass Allocation</h3>
-                  </div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-[10px] font-black text-pink-500 uppercase tracking-widest">
-                      {isEarlyBirdAvailable ? 'Limited Offer Active' : 'Regular Admission'}
-                    </span>
-                  </div>
+                  )}
                 </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 mb-10">
-                  {TICKETS.map(ticket => (
-                    <TicketCard
-                      key={ticket.id}
-                      ticket={ticket}
-                      isSelected={formData.ticketId === ticket.id}
-                      onSelect={handleTicketSelect}
-                      disabled={ticket.id === 'early-bird' && !isEarlyBirdAvailable}
-                    />
-                  ))}
-                </div>
-
+                
                 <AdditionalNames 
                   count={selectedTicket.maxPeople} 
-                  names={formData.additionalNames}
-                  onChange={handleAdditionalNameChange}
+                  names={formData.additionalNames} 
+                  primaryName={formData.fullName}
+                  onChange={(i, v) => {
+                    const n = [...formData.additionalNames]; 
+                    n[i] = v; 
+                    setFormData({...formData, additionalNames: n});
+                  }} 
                 />
-              </section>
+              </div>
 
-              <section className="bg-gray-50/50 rounded-[3rem] p-10 md:p-16 border border-gray-100">
-                <div className="flex items-center gap-4 mb-12">
-                  <div className="w-10 h-10 rounded-xl bg-gray-900 flex items-center justify-center text-white">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                  </div>
-                  <h3 className="text-2xl font-black text-gray-900 tracking-tight">Investment</h3>
+              {/* Contribution Section */}
+              <div className="space-y-6">
+                <div className="flex items-center gap-5 border-b border-rose-50 pb-4">
+                   <div className="w-10 h-10 rounded-2xl bg-rose-950 text-white flex items-center justify-center text-lg font-serif italic shadow-lg shadow-rose-100">03</div>
+                   <h3 className="text-2xl font-serif text-rose-950 italic">Contribution</h3>
                 </div>
-
-                <div className="flex flex-col lg:flex-row gap-16 items-start">
-                  <div className="flex-1 space-y-10">
-                    <div className="bg-white p-8 rounded-3xl border border-gray-100 flex justify-between items-center shadow-sm">
-                      <span className="text-xs font-black text-gray-400 uppercase tracking-widest">Amount Due</span>
-                      <span className="text-4xl font-serif font-black text-pink-700">₹{selectedTicket.price}</span>
+                
+                <div className="bg-rose-50/30 rounded-[2.5rem] p-6 md:p-8 border border-white flex flex-col lg:flex-row gap-8 items-center relative overflow-hidden group/payment">
+                  <div className="flex-1 space-y-4 relative z-10">
+                    <div className="space-y-2 text-center lg:text-left">
+                      <span className="text-[10px] font-bold text-rose-500 uppercase tracking-[0.4em]">UPI ID</span>
+                      <div className="flex items-center justify-center lg:justify-start gap-4">
+                         <span className="text-2xl font-bold text-rose-950">galentine@upi</span>
+                         <button type="button" 
+                           className="p-2 hover:bg-rose-100 rounded-lg transition-colors"
+                           onClick={() => {navigator.clipboard.writeText('galentine@upi'); alert('UPI ID Copied!');}}>
+                           <svg className="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                         </button>
+                      </div>
                     </div>
-                    
-                    <div className="space-y-6">
-                      <p className="text-xs font-black text-gray-900 uppercase tracking-widest">Steps to finalize:</p>
-                      <ul className="space-y-6">
-                        <li className="flex items-start gap-5 text-gray-600">
-                          <span className="w-7 h-7 rounded-full bg-pink-100 text-pink-700 flex-shrink-0 flex items-center justify-center text-xs font-black">1</span>
-                          <span className="text-sm font-medium">Scan QR and complete the transaction.</span>
-                        </li>
-                        <li className="flex items-start gap-5 text-gray-600">
-                          <span className="w-7 h-7 rounded-full bg-pink-100 text-pink-700 flex-shrink-0 flex items-center justify-center text-xs font-black">2</span>
-                          <span className="text-sm font-bold text-gray-900">UPI: galentine@upi</span>
-                        </li>
-                        <li className="flex items-start gap-5 text-gray-600">
-                          <span className="w-7 h-7 rounded-full bg-pink-100 text-pink-700 flex-shrink-0 flex items-center justify-center text-xs font-black">3</span>
-                          <span className="text-sm font-medium">Upload the confirmation screenshot artifact.</span>
-                        </li>
-                      </ul>
-                    </div>
+                    <p className="text-sm text-rose-900/60 font-medium italic text-center lg:text-left">Scan the code or use the ID to finalize your request.</p>
                   </div>
-
-                  <div className="w-full lg:w-64 bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-100 flex flex-col items-center gap-4 mx-auto">
+                  
+                  <div className="w-40 aspect-square bg-white p-3 rounded-2xl shadow-sm border border-rose-50">
                     <img 
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=upi://pay?pa=galentine@upi&pn=Galentines&am=${selectedTicket.price}&cu=INR`} 
-                      alt="Payment QR" 
-                      className="w-full aspect-square grayscale-[0.5] hover:grayscale-0 transition-all duration-500"
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=upi://pay?pa=galentine@upi&pn=Galentines&am=${selectedTicket.price}&cu=INR`} 
+                      alt="Payment" 
+                      className="w-full h-full object-contain" 
                     />
-                    <p className="text-[10px] font-black text-gray-300 uppercase tracking-widest">Secure Gateway</p>
                   </div>
                 </div>
+              </div>
 
-                <div className="mt-16">
-                  <label className="text-xs font-black text-gray-400 uppercase tracking-widest block mb-5 ml-1">Artifact Upload</label>
-                  <div className="relative group">
-                    <input required type="file" accept="image/*" onChange={handleFileChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                    <div className={`w-full py-14 px-10 border-2 border-dashed rounded-[2.5rem] transition-all duration-300 flex flex-col items-center gap-5 ${formData.paymentReceipt ? 'bg-white border-pink-400' : 'bg-white/70 border-gray-200 group-hover:border-pink-300'}`}>
-                      {formData.paymentReceipt ? (
-                        <div className="flex items-center gap-5">
-                          <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center text-green-500">
-                             <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-                          </div>
-                          <span className="text-gray-900 font-bold truncate max-w-sm">{formData.paymentReceipt.name}</span>
-                        </div>
-                      ) : (
-                        <>
-                          <svg className="w-10 h-10 text-pink-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                          <span className="text-gray-400 font-bold text-lg tracking-tight">Attach Payment Artifact</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-              <div className="pt-10 text-center space-y-8">
-                <button
-                  disabled={isSubmitting || !isFormValid}
-                  className={`px-24 py-7 rounded-[2rem] font-black text-xl tracking-[0.1em] shadow-2xl transition-all uppercase
-                    ${isSubmitting ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : !isFormValid ? 'bg-gray-100 text-gray-300 cursor-not-allowed border border-gray-200' : 'bg-pink-600 text-white hover:bg-pink-700 hover:scale-[1.02] active:scale-95'}`}
+              <div className="text-center pt-4">
+                <button 
+                  disabled={isSubmitting || !isFormValid} 
+                  className={`group relative px-20 py-6 rounded-full overflow-hidden transition-all duration-700 ${!isFormValid ? 'bg-rose-50 text-rose-200 cursor-not-allowed border border-rose-100' : 'hover:scale-[1.05] active:scale-95 shadow-xl shadow-rose-200'}`}
                 >
-                  {isSubmitting ? 'Processing...' : 'Complete Registry'}
+                  {isFormValid && <div className="absolute inset-0 bg-rose-950 group-hover:bg-black transition-all duration-500"></div>}
+                  <span className="relative z-10 text-[11px] font-bold tracking-[0.5em] text-white uppercase">
+                    {isSubmitting ? 'Processing...' : 'Join the Celebration'}
+                  </span>
                 </button>
-                <p className="text-[10px] text-gray-400 font-black uppercase tracking-[0.6em]">Invitation Only Experience</p>
               </div>
             </form>
           </div>
         </div>
       </main>
 
-      <footer className="mt-40 text-center pb-24">
-         <div className="w-24 h-[1px] bg-pink-100 mx-auto mb-10 opacity-60"></div>
-         <p className="text-xs text-gray-400 font-black tracking-[0.5em] uppercase">Curated by Ananya & Co.</p>
+      <footer className="mt-16 text-center pb-12">
+         <p className="text-[10px] text-rose-400 font-bold tracking-[0.6em] uppercase">Ananya & Co. — Curated with Love — 2026</p>
       </footer>
     </div>
   );

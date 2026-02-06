@@ -1,4 +1,3 @@
-
 export enum TicketCategory {
   INDIVIDUAL = 'Individual',
   DUO = 'Duo',
@@ -14,6 +13,7 @@ export interface TicketType {
   category: TicketCategory;
   capacity?: number;
   maxPeople: number;
+  emoji: string;
 }
 
 export interface FormData {
@@ -23,5 +23,4 @@ export interface FormData {
   ticketId: string;
   additionalNames: string[];
   wantsUpdates: boolean;
-  paymentReceipt: File | null;
 }

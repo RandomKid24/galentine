@@ -3,89 +3,143 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Galentine's: A Celebration of Us</title>
+    <title>Galentine's | A Celebration of Friendship</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
       :root {
-        --blush: #fffafb;
-        --rose: #be185d;
-        --deep-rose: #831843;
+        --canvas: #fff9fb;
+        --rose-deep: #701a3d;
+        --rose-mid: #db2777;
+        --rose-light: #fdf2f8;
+        --gold: #d4af37;
+        --mint: #d1fae5;
+        --lavender: #f5f3ff;
+        --peach: #fff7ed;
       }
+      
       body {
         font-family: 'Inter', sans-serif;
-        background-color: var(--blush);
-        color: #1f2937;
+        background-color: var(--canvas);
+        color: var(--rose-deep);
+        -webkit-font-smoothing: antialiased;
         overflow-x: hidden;
       }
+
       .font-serif { font-family: 'Playfair Display', serif; }
-      .font-elegant { font-family: 'Cormorant Garamond', serif; }
-      
-      .bg-soft-gradient {
-        background: radial-gradient(circle at top left, #fff1f2 0%, #fffafb 100%);
+      .font-display { font-family: 'Outfit', sans-serif; }
+
+      /* Multi-layered Animated Background */
+      .mesh-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -10;
+        background: 
+          radial-gradient(at 0% 0%, hsla(340, 100%, 94%, 1) 0, transparent 50%), 
+          radial-gradient(at 100% 0%, hsla(160, 100%, 94%, 1) 0, transparent 50%), 
+          radial-gradient(at 100% 100%, hsla(280, 100%, 94%, 1) 0, transparent 50%), 
+          radial-gradient(at 0% 100%, hsla(30, 100%, 94%, 1) 0, transparent 50%),
+          radial-gradient(at 50% 50%, hsla(330, 100%, 96%, 1) 0, transparent 100%);
+        background-color: #fff9fb;
       }
 
-      .glass {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(251, 207, 232, 0.4);
+      /* Detailed Botanical Illustration Overlay with fills for prominence */
+      .floral-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: -5;
+        opacity: 0.85; 
+        pointer-events: none;
+        /* A lush, multi-tone floral pattern with higher visibility and filled shapes */
+        background-image: url("data:image/svg+xml,%3Csvg width='800' height='800' viewBox='0 0 800 800' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='0.7'%3E%3C!-- Large Peony Clusters --%3E%3Ccircle cx='150' cy='150' r='60' fill='%23fce7f3'/%3E%3Ccircle cx='170' cy='130' r='40' fill='%23fbcfe8' opacity='0.6'/%3E%3Cpath d='M150 80c40 0 70 30 70 70s-30 70-70 70-70-30-70-70 30-70 70-70' stroke='%23db2777' stroke-width='3' fill='none'/%3E%3C!-- Botanical Leaves --%3E%3Cpath d='M220 220c30-30 80-20 100 20s-20 70-50 70-50-30-50-90z' fill='%23d1fae5' opacity='0.6'/%3E%3Cpath d='M220 220c30-30 80-20 100 20s-20 70-50 70-50-30-50-90' stroke='%2310b981' stroke-width='2' fill='none'/%3E%3C!-- Lavender Blossoms --%3E%3Ccircle cx='600' cy='100' r='25' fill='%23ede9fe'/%3E%3Ccircle cx='620' cy='120' r='20' fill='%23ddd6fe' opacity='0.7'/%3E%3Ccircle cx='580' cy='110' r='15' fill='%23c4b5fd' opacity='0.5'/%3E%3C!-- Warm Gold Accents --%3E%3Cpath d='M400 450c30-30 90-30 110 0s-30 80-50 80' stroke='%23fbbf24' stroke-width='4' opacity='0.5' fill='none'/%3E%3Ccircle cx='410' cy='470' r='8' fill='%23f59e0b' opacity='0.4'/%3E%3C!-- Floating Petals --%3E%3Crect x='700' y='600' width='15' height='20' rx='7' fill='%23fdf2f8' transform='rotate(30 707 610)'/%3E%3Crect x='50' y='700' width='12' height='16' rx='6' fill='%23fce7f3' transform='rotate(-15 56 708)'/%3E%3Cpath d='M300 100l15 15m-15 0l15-15' stroke='%23fda4af' stroke-width='4' opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+        background-size: 1000px 1000px;
+        filter: contrast(1.1) brightness(1.02);
+        animation: pattern-drift 180s linear infinite;
+      }
+
+      @keyframes pattern-drift {
+        from { background-position: 0 0; }
+        to { background-position: 2000px 2000px; }
+      }
+
+      /* Decorative Floating Blobs with stronger colors for contrast */
+      .bg-blob {
+        position: fixed;
+        border-radius: 50%;
+        filter: blur(120px);
+        z-index: -8;
+        opacity: 0.55;
+        pointer-events: none;
       }
 
       @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-12px); }
+        0% { transform: translate(0, 0) rotate(0deg); }
+        33% { transform: translate(100px, -150px) rotate(15deg); }
+        66% { transform: translate(-80px, -80px) rotate(-15deg); }
+        100% { transform: translate(0, 0) rotate(0deg); }
       }
-      .animate-float { animation: float 6s ease-in-out infinite; }
+      .animate-float-slow { animation: float 32s ease-in-out infinite; }
+      .animate-float-medium { animation: float 24s ease-in-out infinite; }
+      .animate-float-fast { animation: float 18s ease-in-out infinite; }
 
-      @keyframes fade-up {
+      @keyframes fade-in-up {
         from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
       }
-      .animate-fade-up { animation: fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+      .animate-entrance { animation: fade-in-up 1s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
-      @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        25% { transform: translateX(-5px); }
-        75% { transform: translateX(5px); }
+      /* Heart Burst Animations */
+      @keyframes heart-burst-1 {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        50% { transform: translate(-150%, -150%) scale(1) rotate(-15deg); opacity: 1; }
+        100% { transform: translate(-200%, -200%) scale(0) rotate(-30deg); opacity: 0; }
       }
-      .animate-shake { animation: shake 0.2s ease-in-out 0s 2; }
+      @keyframes heart-burst-2 {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        50% { transform: translate(50%, -150%) scale(0.8) rotate(15deg); opacity: 1; }
+        100% { transform: translate(100%, -200%) scale(0) rotate(30deg); opacity: 0; }
+      }
+      @keyframes heart-burst-3 {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        50% { transform: translate(-50%, -180%) scale(1.2); opacity: 1; }
+        100% { transform: translate(-50%, -250%) scale(0); opacity: 0; }
+      }
+      .animate-heart-burst-1 { animation: heart-burst-1 0.8s ease-out forwards; }
+      .animate-heart-burst-2 { animation: heart-burst-2 0.8s ease-out 0.1s forwards; }
+      .animate-heart-burst-3 { animation: heart-burst-3 0.8s ease-out 0.05s forwards; }
 
-      @keyframes subtle-bounce {
-        0% { transform: scale(1.02); }
-        50% { transform: scale(1.08); }
-        100% { transform: scale(1.03); }
-      }
-      .animate-subtle-bounce { animation: subtle-bounce 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-
-      @keyframes gentle-pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.85; transform: scale(0.95); }
-      }
-      .animate-gentle-pulse { animation: gentle-pulse 2s ease-in-out infinite; }
-
-      input::placeholder {
-        color: #9ca3af;
-        font-weight: 300;
+      ::selection { background: #fdf2f8; color: #be185d; }
+      
+      .glass {
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
       }
 
-      /* Transitions for cards */
-      .card-transition {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
-  <script type="importmap">
-{
-  "imports": {
-    "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
-    "react/": "https://esm.sh/react@^19.2.4/",
-    "@google/genai": "https://esm.sh/@google/genai"
-  }
-}
-</script>
-</head>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.4",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+        "react/": "https://esm.sh/react@^19.2.4/",
+        "@google/genai": "https://esm.sh/@google/genai"
+      }
+    }
+    </script>
+  </head>
   <body>
+    <div class="mesh-bg"></div>
+    <div class="floral-overlay"></div>
+    <!-- Adjusted blob positions and colors for a more dynamic look -->
+    <div class="bg-blob w-[800px] h-[800px] bg-rose-200/60 -top-80 -left-80 animate-float-slow"></div>
+    <div class="bg-blob w-[700px] h-[700px] bg-emerald-100/40 top-1/4 -right-60 animate-float-medium"></div>
+    <div class="bg-blob w-[900px] h-[900px] bg-purple-100/50 bottom-0 left-1/4 animate-float-fast"></div>
+    <div class="bg-blob w-[600px] h-[600px] bg-amber-100/40 top-2/3 left-0 animate-float-slow" style="animation-duration: 40s"></div>
     <div id="root"></div>
   </body>
 </html>
