@@ -1,0 +1,7 @@
+{
+  "name": "Galentine's Event Registration",
+  "description": "A beautiful, feminine, and dynamic registration portal for the curated Galentine's experience celebrating womanhood.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
