@@ -30,6 +30,13 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# AI Studio & Tooling
+.gemini/
+.idx/
+metadata.json
+.agent/
+.braintrust/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
