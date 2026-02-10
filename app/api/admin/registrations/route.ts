@@ -14,18 +14,22 @@ export async function DELETE(request: Request) {
         }
 
         // 1. Fetch the registration to get ticket info
+        console.log('Admin Delete: Fetching registration ID:', registrationId);
         const { data: registration, error: fetchError } = await supabase
             .from('registrations')
             .select('ticketId')
-            .eq('id', registrationId)
+            .eq('id', parseInt(registrationId))
             .single();
 
         if (fetchError || !registration) {
+            console.error('Admin Delete: Registration not found or error:', fetchError);
             return NextResponse.json(
                 { success: false, message: 'Registration not found' },
                 { status: 404 }
             );
         }
+
+        console.log('Admin Delete: Found registration. TicketId:', registration.ticketId);
 
         // 2. Fetch the pass to determine if it's early bird and max_people
         const { data: passData, error: passError } = await supabase
@@ -34,16 +38,25 @@ export async function DELETE(request: Request) {
             .eq('id', parseInt(registration.ticketId))
             .single();
 
+        if (passError) {
+            console.error('Admin Delete: Pass data error (non-critical for delete):', passError);
+        }
+
         // 3. Delete the registration
+        console.log('Admin Delete: Deleting registration table entry...');
         const { error: deleteError } = await supabase
             .from('registrations')
             .delete()
-            .eq('id', registrationId);
+            .eq('id', parseInt(registrationId));
 
         if (deleteError) {
             console.error('Delete error:', deleteError);
             return NextResponse.json(
-                { success: false, message: 'Failed to delete registration' },
+                { 
+                    success: false, 
+                    message: `Internal Database Error: ${deleteError.message}. This is likely a permission (RLS) issue in Supabase.`,
+                    error: deleteError 
+                },
                 { status: 500 }
             );
         }

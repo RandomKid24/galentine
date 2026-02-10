@@ -68,7 +68,7 @@ export default function PassesPage() {
             title: formData.title,
             price: parseFloat(formData.price),
             description: formData.description || null,
-            total_seats: parseInt(formData.total_seats),
+            total_seats: formData.total_seats ? parseInt(formData.total_seats) : 0,
             max_people: parseInt(formData.max_people),
             emoji: formData.emoji,
             upi_id: formData.upi_id || null,
@@ -333,15 +333,15 @@ export default function PassesPage() {
 
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                                        Total Seats <span className="text-red-500">*</span>
+                                        Total Seats (Optional)
                                     </label>
                                     <input
                                         type="number"
-                                        required
                                         min="0"
                                         value={formData.total_seats}
                                         onChange={(e) => setFormData({ ...formData, total_seats: e.target.value })}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#80183b] focus:border-transparent"
+                                        placeholder="0"
                                     />
                                 </div>
                             </div>
