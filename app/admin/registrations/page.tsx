@@ -11,6 +11,7 @@ interface Registration {
     phone: string;
     ticketId: string;
     additionalNames: string[];
+    payment_receipt_url: string | null;
     created_at: string;
 }
 
@@ -18,6 +19,7 @@ export default function RegistrationsPage() {
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [selectedReceipt, setSelectedReceipt] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchRegistrations = async () => {
@@ -80,6 +82,7 @@ export default function RegistrationsPage() {
                                     <th className="px-4 py-3">Guest Info</th>
                                     <th className="px-4 py-3">Ticket Details</th>
                                     <th className="px-4 py-3">Group Size</th>
+                                    <th className="px-4 py-3">Payment</th>
                                     <th className="px-4 py-3">Registered At</th>
                                 </tr>
                             </thead>
@@ -117,6 +120,18 @@ export default function RegistrationsPage() {
                                                     ))}
                                                 </div>
                                             </td>
+                                            <td className="px-4 py-3">
+                                                {reg.payment_receipt_url ? (
+                                                    <button
+                                                        onClick={() => setSelectedReceipt(reg.payment_receipt_url)}
+                                                        className="text-xs px-2 py-1 bg-emerald-100 text-emerald-700 rounded hover:bg-emerald-200 transition-colors font-medium"
+                                                    >
+                                                        View Receipt
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-xs text-rose-300 italic">No receipt</span>
+                                                )}
+                                            </td>
                                             <td className="px-4 py-3 text-[10px] text-rose-400 font-mono whitespace-nowrap">
                                                 {new Date(reg.created_at).toLocaleString()}
                                             </td>
@@ -128,6 +143,55 @@ export default function RegistrationsPage() {
                     </div>
                 )}
             </div>
+
+            {/* Receipt Viewer Modal */}
+            {selectedReceipt && (
+                <div 
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+                    onClick={() => setSelectedReceipt(null)}
+                >
+                    <div 
+                        className="bg-white rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-auto"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-lg font-bold text-rose-950">Payment Receipt</h3>
+                            <button
+                                onClick={() => setSelectedReceipt(null)}
+                                className="text-rose-400 hover:text-rose-600 transition-colors"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div className="bg-gray-50 rounded-lg p-4">
+                            <img
+                                src={selectedReceipt}
+                                alt="Payment Receipt"
+                                className="w-full h-auto rounded-lg"
+                            />
+                        </div>
+                        <div className="mt-4 flex gap-2">
+                            <a
+                                href={selectedReceipt}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex-1 px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 transition-colors text-center text-sm font-medium"
+                            >
+                                Open in New Tab
+                            </a>
+                            <a
+                                href={selectedReceipt}
+                                download
+                                className="flex-1 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors text-center text-sm font-medium"
+                            >
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -25,14 +25,47 @@ export interface TicketType {
 }
 
 /**
- * FormData
+ * RegistrationFormData
  * Represents the state of the registration form.
  */
-export interface FormData {
+export interface RegistrationFormData {
     fullName: string; // Primary registrant's name
     phone: string; // Contact number
     email: string; // Email address
     ticketId: string; // ID of the selected ticket
     additionalNames: string[]; // Names of additional guests (if applicable)
     wantsUpdates: boolean; // Opt-in for updates
+}
+
+/**
+ * Pass
+ * Represents a pass/ticket from the database
+ */
+export interface Pass {
+    id: number;
+    title: string;
+    price: number;
+    description: string | null;
+    total_seats: number;
+    max_people: number;
+    emoji: string;
+    upi_id: string | null;
+    qr_code_base64: string | null;
+    is_active: boolean;
+    is_early_bird: boolean;
+    display_order: number;
+    created_at: string;
+    updated_at: string;
+}
+
+/**
+ * SeatConfig
+ * Represents seat availability configuration
+ */
+export interface SeatConfig {
+    id: number;
+    config_key: 'early_bird' | 'general';
+    total_seats: number;
+    used_seats: number;
+    updated_at: string;
 }
