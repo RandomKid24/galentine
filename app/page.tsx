@@ -237,23 +237,13 @@ export default function Home() {
                                 <p className="text-[14px] text-gray-800">₹{selectedTicket.price.toLocaleString('en-IN')}.00</p>
                             </div>
 
-                            {/* Seat Availability Indicator */}
                             <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-lg p-4 border border-rose-100">
-                                <div className="grid grid-cols-2 gap-4 text-center">
-                                    <div>
-                                        <p className="text-xs text-gray-600 mb-1">Early Bird Seats</p>
-                                        <p className="text-lg font-bold text-[#80183b]">
-                                            {seatAvailability?.earlyBird?.available ?? 0}/{seatAvailability?.earlyBird?.total ?? 15}
-                                        </p>
-                                        <p className="text-xs text-gray-500">available</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-gray-600 mb-1">General Seats</p>
-                                        <p className="text-lg font-bold text-[#80183b]">
-                                            {seatAvailability?.general?.available ?? 0}/{seatAvailability?.general?.total ?? 15}
-                                        </p>
-                                        <p className="text-xs text-gray-500">available</p>
-                                    </div>
+                                <div className="text-center">
+                                    <p className="text-xs text-gray-600 mb-1">Early Bird Seats</p>
+                                    <p className="text-lg font-bold text-[#80183b]">
+                                        {seatAvailability?.earlyBird?.available ?? 0}/{seatAvailability?.earlyBird?.total ?? 15}
+                                    </p>
+                                    <p className="text-xs text-gray-500">available</p>
                                 </div>
                             </div>
                             
@@ -494,9 +484,17 @@ export default function Home() {
             )}
 
             {/* Footer */}
-            <footer className="w-full py-12 flex flex-col items-center gap-6 bg-gradient-to-b from-transparent to-[#f8c0ca]/30">
-                <div className="text-center space-y-2">
-                    <p className="text-[11px] text-gray-400 uppercase tracking-[0.4em] font-bold">🌸 An exclusive gathering — 2026 🌸</p>
+            <footer className="w-full py-16 flex flex-col items-center gap-8 bg-gradient-to-b from-transparent to-[#f8c0ca]/30">
+                <div className="flex flex-col items-center gap-4">
+                    <img 
+                        src="/logo.jpeg" 
+                        alt="sharedsmilesco logo" 
+                        className="h-40 w-auto hover:scale-105 transition-all duration-300"
+                    />
+                    <div className="text-center space-y-2">
+                        <p className="text-[11px] text-gray-500 uppercase tracking-[0.4em] font-bold">🌸 sharedsmilesco — 2026 🌸</p>
+                        <p className="text-[10px] text-gray-400 font-medium">An exclusive gathering celebrates friendship and love</p>
+                    </div>
                 </div>
             </footer>
         </div>

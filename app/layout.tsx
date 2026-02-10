@@ -22,8 +22,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-    title: "Galentine's | A Celebration of Friendship",
-    description: "Join us for an evening of soft indulgence dedicated to the luminous power of enduring friendship.",
+    title: "Galentine's | sharedsmilesco",
+    description: "Join us for an evening of soft indulgence with sharedsmilesco, dedicated to the luminous power of enduring friendship.",
 };
 
 /**
