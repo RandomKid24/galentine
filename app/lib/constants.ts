@@ -7,11 +7,11 @@ import { TicketType, TicketCategory } from './types';
 export const TICKETS: TicketType[] = [
     {
         id: 'early-bird',
-        name: 'Early Bird (First 15 Seats)',
+        name: 'Early Bird (First 10 Seats)',
         price: 249,
         description: 'Special early access',
         category: TicketCategory.INDIVIDUAL,
-        capacity: 15,
+        capacity: 10,
         maxPeople: 1,
         emoji: '🌸'
     },
@@ -40,7 +40,7 @@ export const TICKETS: TicketType[] = [
         description: 'For Two People',
         category: TicketCategory.DUO,
         maxPeople: 2,
-        emoji: '👯‍♀️'
+        emoji: '👯'
     },
     {
         id: 'trio-regular',
@@ -49,7 +49,7 @@ export const TICKETS: TicketType[] = [
         description: 'For Three People',
         category: TicketCategory.TRIO,
         maxPeople: 3,
-        emoji: '🌷'
+        emoji: '🌿'
     },
     {
         id: 'premium-duo',
@@ -58,16 +58,7 @@ export const TICKETS: TicketType[] = [
         description: 'Shared Premium Access',
         category: TicketCategory.DUO,
         maxPeople: 2,
-        emoji: '💖'
-    },
-    {
-        id: 'premium-trio',
-        name: 'Premium Trio (3 people)',
-        price: 1899,
-        description: 'Artisanal Experience for Three',
-        category: TicketCategory.TRIO,
-        maxPeople: 3,
-        emoji: '💖'
+        emoji: '💕'
     },
     {
         id: 'group-regular',
@@ -76,7 +67,7 @@ export const TICKETS: TicketType[] = [
         description: 'Collective Entry for Five',
         category: TicketCategory.GROUP,
         maxPeople: 5,
-        emoji: '🌼'
+        emoji: '💐'
     },
     {
         id: 'group-premium',
@@ -89,5 +80,5 @@ export const TICKETS: TicketType[] = [
     }
 ];
 
-export const TOTAL_EARLY_BIRD_SEATS = 15;
-export const USED_EARLY_BIRD_SEATS = 0; // Keeping as 0 for demo as requested
+export const TOTAL_EARLY_BIRD_SEATS = 10;
+export const USED_EARLY_BIRD_SEATS = 0;

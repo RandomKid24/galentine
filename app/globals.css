@@ -4,19 +4,20 @@
 
 :root {
   --canvas: #fff9fb;
-  --rose-deep: #701a3d;
+  --rose-deep: #80183b; /* Darker burgundy as seen in the images */
   --rose-mid: #db2777;
   --rose-light: #fdf2f8;
   --gold: #d4af37;
   --mint: #d1fae5;
   --lavender: #f5f3ff;
   --peach: #fff7ed;
+  --bg-poly: #f8c0ca; /* Light pink for polygonal background */
 }
 
 body {
   font-family: var(--font-inter), sans-serif;
-  background-color: var(--canvas);
-  color: var(--rose-deep);
+  background-color: white;
+  color: #333;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
@@ -30,81 +31,4 @@ body {
 }
 
 /* Noise Texture Overlay */
-.noise-texture {
-  position: fixed;
-  inset: 0;
-  z-index: -4;
-  opacity: 0.015;
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-}
-
-/* Liquid Mesh Background */
-.mesh-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -10;
-  background: 
-    radial-gradient(circle at 0% 0%, rgba(253, 242, 248, 1) 0%, transparent 50%),
-    radial-gradient(circle at 100% 0%, rgba(209, 250, 229, 0.4) 0%, transparent 50%),
-    radial-gradient(circle at 100% 100%, rgba(245, 243, 255, 1) 0%, transparent 50%),
-    radial-gradient(circle at 0% 100%, rgba(255, 247, 237, 0.8) 0%, transparent 50%),
-    linear-gradient(135deg, #fff9fb 0%, #fff 100%);
-}
-
-/* Intricate Botanical SVG Overlay */
-.floral-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: -5;
-  opacity: 0.6; 
-  pointer-events: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='1200' height='1200' viewBox='0 0 1200 1200' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' stroke='%23db2777' stroke-width='0.5' stroke-opacity='0.15'%3E%3C!-- Peony Outlines --%3E%3Cpath d='M300 200c0 0 20-30 50-30s50 30 50 30-20 30-50 30-50-30-50-30z'/%3E%3Cpath d='M350 170c-30-20-60 0-60 30s30 50 60 50 60-20 60-50-30-50-60-50z'/%3E%3Cpath d='M350 150c20 0 40 10 40 40s-20 40-40 40-40-10-40-40 20-40 40-40z'/%3E%3C!-- Vine Structures --%3E%3Cpath d='M100 0c50 100 0 200 100 300s200 0 300 100' stroke='%23d4af37' stroke-opacity='0.1'/%3E%3Cpath d='M1100 0c-50 100 0 200-100 300s-200 0-300 100' stroke='%23d4af37' stroke-opacity='0.1'/%3E%3C!-- Soft Filled Circles --%3E%3Ccircle cx='600' cy='600' r='100' fill='%23fce7f3' fill-opacity='0.03'/%3E%3Ccircle cx='200' cy='800' r='150' fill='%23d1fae5' fill-opacity='0.02'/%3E%3Ccircle cx='900' cy='300' r='120' fill='%23ede9fe' fill-opacity='0.03'/%3E%3C/g%3E%3C/svg%3E");
-  background-size: cover;
-  animation: subtle-drift 120s ease-in-out infinite alternate;
-}
-
-@keyframes subtle-drift {
-  from { transform: scale(1) translate(0, 0); }
-  to { transform: scale(1.05) translate(20px, 10px); }
-}
-
-/* Animated Ethereal Blobs */
-.bg-blob {
-  position: fixed;
-  border-radius: 50%;
-  filter: blur(140px);
-  z-index: -8;
-  opacity: 0.45;
-  pointer-events: none;
-}
-
-@keyframes float-fluid {
-  0% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(4vw, -6vh) scale(1.1); }
-  66% { transform: translate(-3vw, 4vh) scale(0.95); }
-  100% { transform: translate(0, 0) scale(1); }
-}
-.animate-float-slow { animation: float-fluid 35s ease-in-out infinite; }
-.animate-float-medium { animation: float-fluid 28s ease-in-out infinite; }
-.animate-float-fast { animation: float-fluid 22s ease-in-out infinite; }
-
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(40px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.animate-entrance { animation: fade-in-up 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-
-::selection { background: #fce7f3; color: #701a3d; }
-
-.glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(30px) saturate(180%);
-  -webkit-backdrop-filter: blur(30px) saturate(180%);
-  box-shadow: 0 8px 32px 0 rgba(112, 26, 61, 0.05);
-}
-
 .no-scrollbar::-webkit-scrollbar { display: none; }

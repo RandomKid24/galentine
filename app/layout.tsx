@@ -39,8 +39,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" className={`${inter.variable} ${playfair.variable} ${outfit.variable}`}>
-            <body className="font-sans antialiased text-rose-900 bg-[var(--canvas)] overflow-x-hidden">
-                <Background />
+            <body className="font-sans antialiased text-gray-900 bg-white overflow-x-hidden">
                 {children}
             </body>
         </html>
