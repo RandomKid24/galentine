@@ -12,6 +12,7 @@ interface Registration {
     ticketId: string;
     additionalNames: string[];
     payment_receipt_url: string | null;
+    status?: string;
     created_at: string;
 }
 
@@ -89,6 +90,40 @@ export default function RegistrationsPage() {
         reg.phone.includes(searchTerm)
     );
 
+    const handleConfirm = async (id: number) => {
+        if (!confirm('Confirm seat and send confirmation email?')) return;
+        
+        try {
+            const response = await fetch('/api/admin/confirm-registration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registrationId: id })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert('Seat confirmed and email sent! ✅');
+                fetchData();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            alert('Failed to confirm registration');
+        }
+    };
+
+    const StatusBadge = ({ status }: { status?: string }) => {
+        const isConfirmed = status === 'confirmed';
+        return (
+            <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
+                isConfirmed 
+                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                    : 'bg-amber-50 text-amber-600 border-amber-100'
+            }`}>
+                {isConfirmed ? 'Confirmed' : 'Pending Verification'}
+            </span>
+        );
+    };
+
     return (
         <div className="space-y-6">
             {/* Header Section */}
@@ -157,9 +192,7 @@ export default function RegistrationsPage() {
                                     {/* Primary Info */}
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center gap-3 mb-2">
-                                            <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-wider border border-emerald-100">
-                                                Confirmed
-                                            </span>
+                                            <StatusBadge status={reg.status} />
                                             <span className="text-[10px] text-rose-300 font-mono">
                                                 #{reg.id} • {new Date(reg.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
                                             </span>
@@ -214,6 +247,14 @@ export default function RegistrationsPage() {
 
                                     {/* Actions */}
                                     <div className="flex items-center gap-3 lg:w-48 justify-end">
+                                        {reg?.status !== 'confirmed' && (
+                                            <button
+                                                onClick={() => handleConfirm(reg.id)}
+                                                className="px-4 py-2 bg-rose-600 text-white rounded-xl hover:bg-rose-700 transition-all text-xs font-bold shadow-lg shadow-rose-100"
+                                            >
+                                                CONFIRM
+                                            </button>
+                                        )}
                                         {reg?.payment_receipt_url ? (
                                             <button
                                                 onClick={() => setSelectedReceipt(reg.payment_receipt_url)}
