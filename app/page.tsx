@@ -243,14 +243,14 @@ export default function Home() {
                                     <div>
                                         <p className="text-xs text-gray-600 mb-1">Early Bird Seats</p>
                                         <p className="text-lg font-bold text-[#80183b]">
-                                            {seatAvailability.earlyBird.available}/{seatAvailability.earlyBird.total}
+                                            {seatAvailability?.earlyBird?.available ?? 0}/{seatAvailability?.earlyBird?.total ?? 15}
                                         </p>
                                         <p className="text-xs text-gray-500">available</p>
                                     </div>
                                     <div>
                                         <p className="text-xs text-gray-600 mb-1">General Seats</p>
                                         <p className="text-lg font-bold text-[#80183b]">
-                                            {seatAvailability.general.available}/{seatAvailability.general.total}
+                                            {seatAvailability?.general?.available ?? 0}/{seatAvailability?.general?.total ?? 15}
                                         </p>
                                         <p className="text-xs text-gray-500">available</p>
                                     </div>

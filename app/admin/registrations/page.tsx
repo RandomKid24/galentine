@@ -74,7 +74,8 @@ export default function RegistrationsPage() {
         }
     };
 
-    const getTicketInfo = (ticketId: string) => {
+    const getTicketInfo = (ticketId: string | number) => {
+        if (!ticketId || !passes) return null;
         // Try to find in passes first (dynamic)
         const pass = passes.find(p => p.id.toString() === ticketId.toString());
         if (pass) return pass;
@@ -213,7 +214,7 @@ export default function RegistrationsPage() {
 
                                     {/* Actions */}
                                     <div className="flex items-center gap-3 lg:w-48 justify-end">
-                                        {reg.payment_receipt_url ? (
+                                        {reg?.payment_receipt_url ? (
                                             <button
                                                 onClick={() => setSelectedReceipt(reg.payment_receipt_url)}
                                                 className="flex-1 lg:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition-all text-xs font-bold border border-emerald-100"

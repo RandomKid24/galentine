@@ -32,8 +32,8 @@ export default function SmtpSettingsPage() {
                 .eq('key', 'smtp_settings')
                 .single();
 
-            if (!error && data) {
-                setSettings(data.value);
+            if (!error && data && data.value) {
+                setSettings(prev => ({ ...prev, ...data.value }));
             }
         };
         fetchSettings();
