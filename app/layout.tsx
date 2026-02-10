@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display, Outfit } from 'next/font/google';
-import Background from './components/Background';
 import './globals.css';
 
 // Initialize fonts
