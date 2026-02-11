@@ -44,21 +44,34 @@ export async function DELETE(request: Request) {
 
         // 3. Delete the registration
         console.log('Admin Delete: Deleting registration table entry...');
-        const { error: deleteError } = await supabase
+        const { supabaseAdmin } = await import('../../../lib/supabaseAdmin');
+        const db = supabaseAdmin || supabase;
+
+        const { data: deleteData, error: deleteError } = await db
             .from('registrations')
             .delete()
-            .eq('id', parseInt(registrationId));
+            .eq('id', parseInt(registrationId))
+            .select();
 
         if (deleteError) {
             console.error('Delete error:', deleteError);
             return NextResponse.json(
                 { 
                     success: false, 
-                    message: `Internal Database Error: ${deleteError.message}. This is likely a permission (RLS) issue in Supabase.`,
+                    message: `Internal Database Error: ${deleteError.message}. This is likely a permission issue in Supabase.`,
                     error: deleteError 
                 },
                 { status: 500 }
             );
+        }
+
+        // If no rows were deleted but no error, it's likely RLS
+        if (!deleteData || deleteData.length === 0) {
+            console.error('Delete failed: No rows affected. Likely RLS policy issue.');
+            return NextResponse.json({ 
+                success: false, 
+                message: 'Database delete restricted. Please add SUPABASE_SERVICE_ROLE_KEY to your env.' 
+            }, { status: 500 });
         }
 
         // 4. Update seat count if pass data exists

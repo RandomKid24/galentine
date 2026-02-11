@@ -493,7 +493,12 @@ export default function Home() {
                     />
                     <div className="text-center space-y-2">
                         <p className="text-[11px] text-gray-500 uppercase tracking-[0.4em] font-bold">🌸 sharedsmilesco — 2026 🌸</p>
-                        <p className="text-[10px] text-gray-400 font-medium">An exclusive gathering celebrates friendship and love</p>
+                        <p className="text-[10px] text-gray-400 font-medium pb-2">An exclusive gathering celebrates friendship and love</p>
+                        <div className="pt-4 border-t border-pink-200/50 w-full max-w-sm mx-auto">
+                            <p className="text-[12px] md:text-[14px] text-gray-400">
+                                © 2026 <a href="https://www.beforth.in/" target="_blank" rel="noopener noreferrer" className="hover:text-[#80183b] transition-colors font-medium underline underline-offset-2">Beforth.in</a> - Go forth with Beforth
+                            </p>
+                        </div>
                     </div>
                 </div>
             </footer>

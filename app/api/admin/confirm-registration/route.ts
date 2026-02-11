@@ -42,16 +42,28 @@ export async function POST(request: Request) {
         const settings = configData.value;
         
         // 3. Update status in database
-        const { error: updateError } = await supabase
+        // Use supabaseAdmin if available to bypass RLS
+        const { supabaseAdmin } = await import('../../../lib/supabaseAdmin');
+        const db = supabaseAdmin || supabase;
+        
+        const { data: updateData, error: updateError } = await db
             .from('registrations')
             .update({ status: 'confirmed' })
-            .eq('id', registrationId);
+            .eq('id', registrationId)
+            .select();
 
         if (updateError) {
             console.error('Failed to update status:', updateError);
-            // We continue anyway to send the email if possible, or return error?
-            // Better to return error if DB update fails.
-            return NextResponse.json({ success: false, message: 'Failed to update registration status' }, { status: 500 });
+            return NextResponse.json({ success: false, message: 'Failed to update registration status: ' + updateError.message }, { status: 500 });
+        }
+
+        // If no rows were updated, it's likely an RLS permission issue
+        if (!updateData || updateData.length === 0) {
+            console.error('Update failed: No rows affected. Likely RLS policy issue.');
+            return NextResponse.json({ 
+                success: false, 
+                message: 'Database update restricted. Please ensure SUPABASE_SERVICE_ROLE_KEY is set in your .env.local file.' 
+            }, { status: 500 });
         }
 
         // 4. Send Confirmation Email
@@ -69,8 +81,10 @@ export async function POST(request: Request) {
             // Force IPv4
             (transporter as any).options.family = 4;
 
-            // Generate a unique key (simple one using the ID and a prefix)
-            const uniqueKey = `GAL26-${registrationId.toString().padStart(4, '0')}-${Math.random().toString(36).substring(2, 5).toUpperCase()}`;
+            // Generate a unique key (Deterministic based on ID to match export)
+            const idStr = registrationId.toString().padStart(4, '0');
+            const hash = ((registrationId * 7531 + 12345) % 46656).toString(36).padStart(3, '0').toUpperCase();
+            const uniqueKey = `GAL26-${idStr}-${hash}`;
 
             await transporter.sendMail({
                 from: `"${settings.fromName}" <${settings.fromEmail || settings.username}>`,

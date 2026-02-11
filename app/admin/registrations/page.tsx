@@ -111,8 +111,92 @@ export default function RegistrationsPage() {
         }
     };
 
+    const exportToCSV = () => {
+        if (filteredRegistrations.length === 0) {
+            alert("No registrations to export matching your search.");
+            return;
+        }
+
+        try {
+            // Header row
+            const headers = ["ID", "Confirmation Key", "Full Name", "Email", "Phone", "Ticket", "Price", "Guests", "Status", "Date"];
+            
+            // Data rows - handle special characters and quotes for CSV
+            const rows = filteredRegistrations.map(reg => {
+                const pass = getTicketInfo(reg.ticketId);
+                
+                // Deterministic Unique Key Generation (Matches API pattern)
+                const idStr = reg.id.toString().padStart(4, '0');
+                const hash = ((reg.id * 7531 + 12345) % 46656).toString(36).padStart(3, '0').toUpperCase();
+                const uniqueKey = `GAL26-${idStr}-${hash}`;
+
+                // Robust guest list handling
+                let guestNames = [reg.fullName];
+                try {
+                    if (reg.additionalNames) {
+                        const additional = typeof reg.additionalNames === 'string' 
+                            ? JSON.parse(reg.additionalNames) 
+                            : reg.additionalNames;
+                        if (Array.isArray(additional)) {
+                            guestNames = [...guestNames, ...additional];
+                        }
+                    }
+                } catch (e) {
+                    console.error("Error parsing guests for registration:", reg.id, e);
+                }
+
+                const formatCSVCell = (val: any) => {
+                    const str = String(val === null || val === undefined ? '' : val);
+                    // Escape quotes by doubling them and wrap in quotes
+                    return `"${str.replace(/"/g, '""')}"`;
+                };
+
+                return [
+                    reg.id,
+                    formatCSVCell(uniqueKey),
+                    formatCSVCell(reg.fullName),
+                    formatCSVCell(reg.email),
+                    formatCSVCell(reg.phone),
+                    formatCSVCell(pass?.title || 'Unknown'),
+                    pass?.price || 0,
+                    formatCSVCell(guestNames.join(', ')),
+                    formatCSVCell(reg.status || 'pending'),
+                    formatCSVCell(new Date(reg.created_at).toLocaleString('en-IN'))
+                ].join(',');
+            });
+
+            // Combine into CSV string with UTF-8 BOM for Excel support
+            const csvContent = "\ufeff" + [
+                headers.join(','),
+                ...rows
+            ].join('\n');
+
+            // Create and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `galentines_registrations_${new Date().toISOString().split('T')[0]}.csv`;
+            
+            // Trigger download
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            setTimeout(() => {
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            }, 100);
+        } catch (error) {
+            console.error("Export failed:", error);
+            alert("Could not export data. Please check the console for details.");
+        }
+    };
+
     const StatusBadge = ({ status }: { status?: string }) => {
         const isConfirmed = status === 'confirmed';
+        const isPending = status === 'pending' || !status;
+        
         return (
             <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                 isConfirmed 
@@ -134,6 +218,15 @@ export default function RegistrationsPage() {
                 </div>
                 
                 <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <button
+                        onClick={exportToCSV}
+                        className="flex items-center gap-2 px-4 py-2.5 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition-all text-sm font-bold border border-emerald-100"
+                    >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        EXPORT EXCEL (CSV)
+                    </button>
                     <div className="relative flex-1 md:w-64 min-w-[200px]">
                         <input
                             type="text"
