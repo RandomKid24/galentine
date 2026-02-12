@@ -22,9 +22,14 @@ interface Registration {
 export default function AdminPage() {
     const [registrations, setRegistrations] = useState<Registration[]>([]);
     const [loading, setLoading] = useState(true);
+    const [seatAvailability, setSeatAvailability] = useState<{
+        earlyBird: { total: number; used: number; available: number };
+        general: { total: number; used: number; available: number };
+    } | null>(null);
 
     useEffect(() => {
-        const fetchRegistrations = async () => {
+        const fetchData = async () => {
+            // Fetch registrations
             const { data, error } = await supabase
                 .from('registrations')
                 .select('*')
@@ -33,10 +38,34 @@ export default function AdminPage() {
             if (!error && data) {
                 setRegistrations(data);
             }
+
+            // Fetch seat availability
+            const { data: seatData, error: seatError } = await supabase
+                .from('seat_config')
+                .select('*');
+
+            if (!seatError && seatData) {
+                const earlyBirdConfig = seatData.find(s => s.config_key === 'early_bird');
+                const generalConfig = seatData.find(s => s.config_key === 'general');
+
+                setSeatAvailability({
+                    earlyBird: {
+                        total: earlyBirdConfig?.total_seats || 11,
+                        used: earlyBirdConfig?.used_seats || 0,
+                        available: (earlyBirdConfig?.total_seats || 11) - (earlyBirdConfig?.used_seats || 0)
+                    },
+                    general: {
+                        total: generalConfig?.total_seats || 19,
+                        used: generalConfig?.used_seats || 0,
+                        available: (generalConfig?.total_seats || 19) - (generalConfig?.used_seats || 0)
+                    }
+                });
+            }
+
             setLoading(false);
         };
 
-        fetchRegistrations();
+        fetchData();
 
         // Real-time subscription
         const channel = supabase
@@ -68,9 +97,9 @@ export default function AdminPage() {
             </div>
 
             {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                {/* Stat Card 1 */}
+                {/* Stat Card 1 - Total Registrations */}
                 <div className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all group">
                     <div className="flex justify-between items-start mb-4">
                         <div className="p-3 bg-rose-50 rounded-xl group-hover:bg-rose-100 transition-colors">
@@ -83,6 +112,38 @@ export default function AdminPage() {
                     <p className="text-4xl font-serif font-bold text-rose-950">
                         {loading ? '...' : totalRegistrations}
                     </p>
+                </div>
+
+                {/* Stat Card 2 - Early Bird Seats */}
+                <div className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-amber-50 rounded-xl group-hover:bg-amber-100 transition-colors">
+                            <svg className="w-6 h-6 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 className="text-rose-900/60 font-bold text-xs uppercase tracking-wider mb-1">Early Bird Seats</h3>
+                    <p className="text-4xl font-serif font-bold text-rose-950">
+                        {loading ? '...' : `${seatAvailability?.earlyBird.available}/${seatAvailability?.earlyBird.total}`}
+                    </p>
+                    <p className="text-xs text-rose-400 mt-1">{seatAvailability?.earlyBird.used || 0} used</p>
+                </div>
+
+                {/* Stat Card 3 - General Seats */}
+                <div className="bg-white p-6 rounded-2xl border border-rose-100 shadow-sm hover:shadow-md transition-all group">
+                    <div className="flex justify-between items-start mb-4">
+                        <div className="p-3 bg-emerald-50 rounded-xl group-hover:bg-emerald-100 transition-colors">
+                            <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 className="text-rose-900/60 font-bold text-xs uppercase tracking-wider mb-1">General Seats</h3>
+                    <p className="text-4xl font-serif font-bold text-rose-950">
+                        {loading ? '...' : `${seatAvailability?.general.available}/${seatAvailability?.general.total}`}
+                    </p>
+                    <p className="text-xs text-rose-400 mt-1">{seatAvailability?.general.used || 0} used</p>
                 </div>
 
             </div>

@@ -337,10 +337,10 @@ export default function RegistrationsPage() {
                                                 onClick={() => setSelectedReceipt(reg.payment_receipt_url)}
                                                 className="flex-1 lg:flex-none px-4 py-2 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 transition-all text-xs font-bold border border-emerald-100"
                                             >
-                                                RECEIPT
+                                                PAYMENT RECEIPT
                                             </button>
                                         ) : (
-                                            <span className="text-[10px] font-bold text-rose-200 uppercase tracking-widest">No Receipt</span>
+                                            <span className="text-[10px] font-bold text-rose-200 uppercase tracking-widest">No Payment Receipt</span>
                                         )}
                                         
                                         <button

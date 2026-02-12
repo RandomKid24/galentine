@@ -53,12 +53,12 @@ export default function AdminLayout({
     ];
 
     return (
-        <div className="min-h-screen flex flex-col md:flex-row pt-16 md:pt-20 px-4 md:px-6 gap-4 max-w-7xl mx-auto pb-8">
+        <div className="min-h-screen flex flex-col md:flex-row">
 
             {/* Sidebar Navigation */}
-            <aside className="w-full md:w-56 flex-shrink-0">
-                <div className="bg-white border border-rose-100 rounded-[1.5rem] p-4 shadow-xl shadow-rose-100/20 sticky top-20">
-                    <div className="mb-6 px-2">
+            <aside className="w-full md:w-64 flex-shrink-0 border-r border-rose-100">
+                <div className="bg-white p-6 h-full">
+                    <div className="mb-6">
                         <h2 className="text-lg font-serif font-bold text-rose-950">Admin Panel</h2>
                         <p className="text-[10px] text-rose-400 font-bold tracking-widest uppercase mt-0.5">Galentine's 2026</p>
                     </div>
@@ -101,7 +101,7 @@ export default function AdminLayout({
             </aside>
 
             {/* Main Content Area */}
-            <main className="flex-1 min-w-0">
+            <main className="flex-1 min-w-0 p-6 bg-gray-50">
                 <AdminBreadcrumbs />
                 {children}
             </main>

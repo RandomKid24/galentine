@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS public.seat_config (
 INSERT INTO public.seat_config (config_key, total_seats, used_seats)
 VALUES 
     ('early_bird', 11, 0),
-    ('general', 15, 0)
+    ('general', 19, 0)
 ON CONFLICT (config_key) DO NOTHING;
 
 -- RLS for seat_config table

@@ -32,8 +32,8 @@ export default function Home() {
         earlyBird: { total: number; used: number; available: number };
         general: { total: number; used: number; available: number };
     }>({
-        earlyBird: { total: 15, used: 0, available: 15 },
-        general: { total: 15, used: 0, available: 15 }
+        earlyBird: { total: 11, used: 0, available: 11 },
+        general: { total: 19, used: 0, available: 19 }
     });
 
     useEffect(() => {
@@ -55,9 +55,9 @@ export default function Home() {
                             available: (earlyBirdConfig?.total_seats || 11) - (earlyBirdConfig?.used_seats || 0)
                         },
                         general: {
-                            total: generalConfig?.total_seats || 15,
+                            total: generalConfig?.total_seats || 19,
                             used: generalConfig?.used_seats || 0,
-                            available: (generalConfig?.total_seats || 15) - (generalConfig?.used_seats || 0)
+                            available: (generalConfig?.total_seats || 19) - (generalConfig?.used_seats || 0)
                         }
                     });
                 }
