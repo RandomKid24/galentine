@@ -260,6 +260,11 @@ export default function RegistrationsPage() {
                         const pass = getTicketInfo(reg.ticketId);
                         const allGuests = [reg.fullName, ...(reg.additionalNames || [])];
                         
+                        // Generate unique key (same logic as confirmation email)
+                        const idStr = reg.id.toString().padStart(4, '0');
+                        const hash = ((reg.id * 7531 + 12345) % 46656).toString(36).padStart(3, '0').toUpperCase();
+                        const uniqueKey = `GAL26-${idStr}-${hash}`;
+                        
                         return (
                             <div key={reg.id} className="group bg-white rounded-2xl border border-rose-100 p-5 hover:border-rose-300 hover:shadow-xl hover:shadow-rose-100/30 transition-all duration-300">
                                 <div className="flex flex-col lg:flex-row gap-6">
@@ -270,6 +275,11 @@ export default function RegistrationsPage() {
                                             <span className="text-[10px] text-rose-300 font-mono">
                                                 #{reg.id} • {new Date(reg.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
                                             </span>
+                                            {reg.status === 'confirmed' && (
+                                                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded border border-emerald-200 font-mono">
+                                                    🎫 {uniqueKey}
+                                                </span>
+                                            )}
                                         </div>
                                         
                                         <h3 className="text-lg font-serif font-bold text-rose-950 truncate">{reg.fullName}</h3>
