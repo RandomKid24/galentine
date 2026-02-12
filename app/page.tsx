@@ -494,7 +494,7 @@ export default function Home() {
                     <div className="text-center space-y-2">
                         <div className="pt-4 border-t border-pink-200/50 w-full max-w-sm mx-auto">
                             <p className="text-[12px] md:text-[14px] text-gray-400">
-                                © 2026 <a href="https://www.beforth.in/" target="_blank" rel="noopener noreferrer" className="hover:text-[#80183b] transition-colors font-medium underline underline-offset-2">Beforth.in</a> X Sharedsmilesco
+                                © 2026 <a href="https://www.beforth.in/" target="_blank" rel="noopener noreferrer" className="hover:text-[#80183b] transition-colors font-medium underline underline-offset-2">Beforth.in</a> X Sharedsmilesco - Go forth with BeForth
                             </p>
                         </div>
                     </div>
