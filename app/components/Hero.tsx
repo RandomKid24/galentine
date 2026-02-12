@@ -29,14 +29,17 @@ const Hero: React.FC = () => {
                     Galentine's - The curated experience celebrating womanhood
                 </h2>
 
-                <div className="flex flex-col items-center gap-12">
-                    <button 
-                        onClick={scrollToRegistration}
-                        className="flex items-center gap-2 px-8 py-2 rounded-full border border-[#4a1024]/20 text-[#4a1024] bg-white/30 backdrop-blur-sm hover:bg-white/50 transition-all text-sm tracking-widest font-medium shadow-sm"
-                    >
-                        <ChevronDown className="w-4 h-4" />
-                        START
-                    </button>
+                <div className="flex flex-col items-center gap-6">
+                    {/* Event Details */}
+                    <div className="relative">
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#4a1024]/10 to-transparent"></div>
+                        <p className="relative text-[#4a1024] text-base md:text-lg font-semibold leading-loose space-y-1 px-6">
+                            <span className="block text-shadow-lg">Date: <span className="font-bold text-[#80183b]">20th Feb '26</span></span>
+                            <span className="block text-shadow-lg">Time: <span className="font-bold text-[#80183b]">11 AM onwards</span></span>
+                            <span className="block text-shadow-lg">Location: <span className="font-bold text-[#80183b]">Elo Cafe, Gangapur Road</span></span>
+                        </p>
+                        <div className="mt-2 h-0.5 bg-gradient-to-r from-transparent via-[#80183b] to-transparent"></div>
+                    </div>
 
                     <button 
                         onClick={scrollToRegistration}

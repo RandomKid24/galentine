@@ -86,56 +86,106 @@ export async function POST(request: Request) {
             const hash = ((registrationId * 7531 + 12345) % 46656).toString(36).padStart(3, '0').toUpperCase();
             const uniqueKey = `GAL26-${idStr}-${hash}`;
 
+            // Calculate number of attendees
+            const additionalNamesArray = registration.additionalNames && Array.isArray(registration.additionalNames) 
+                ? registration.additionalNames 
+                : (registration.additionalNames ? JSON.parse(registration.additionalNames) : []);
+            const totalAttendees = 1 + additionalNamesArray.length;
+
+            // Build guest names list
+            let guestNamesHtml = '';
+            if (additionalNamesArray.length > 0) {
+                const allGuests = [registration.fullName, ...additionalNamesArray];
+                guestNamesHtml = `
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff9fb; border-left: 4px solid #db2777; border-radius: 8px; margin: 25px 0;">
+                        <tr>
+                            <td style="padding: 20px;">
+                                <p style="margin: 0 0 10px 0; font-size: 14px; color: #be123c; font-weight: bold;">👥 Guest Names:</p>
+                                ${allGuests.map((name, index) => `<p style="margin: 5px 0; font-size: 14px; color: #333333;">• ${name}</p>`).join('')}
+                            </td>
+                        </tr>
+                    </table>
+                `;
+            }
+
             await transporter.sendMail({
                 from: `"${settings.fromName}" <${settings.fromEmail || settings.username}>`,
                 to: registration.email,
-                subject: `SEAT CONFIRMED - Galentine's 2026 💖`,
+                subject: `🎉 Registration Confirmed – Galentine's: A Curated Experience Celebrating Womanhood`,
                 html: `
-                    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 40px; border: 2px solid #be123c; border-radius: 16px; background-color: #ffffff; color: #4c0519;">
-                        <div style="text-align: center; margin-bottom: 30px;">
-                            <div style="font-size: 40px; margin-bottom: 10px;">💖</div>
-                            <h1 style="color: #be123c; font-size: 26px; margin-bottom: 8px; font-family: serif;">Your Seat is Confirmed!</h1>
-                            <p style="text-transform: uppercase; letter-spacing: 0.2em; font-size: 11px; color: #db2777; font-weight: bold;">Galentine's Day 2026</p>
-                        </div>
-                        
-                        <p style="font-size: 16px; line-height: 1.6; text-align: center;">Hello <strong>${registration.fullName}</strong>,</p>
-                        
-                        <p style="font-size: 16px; line-height: 1.6; text-align: center;">Great news! Your payment has been verified and your seat for the Galentine's 2026 event is now officially <strong>CONFIRMED</strong>.</p>
-                        
-                        <div style="text-align: center; margin: 10px 0;">
-                            <span style="background: #fff1f2; color: #be123c; padding: 5px 15px; rounded: 20px; font-size: 13px; font-weight: bold; border: 1px solid #fecdd3;">
-                                ${passData?.title || 'General Entry'}
-                            </span>
-                        </div>
-                        
-                        <div style="background-color: #fff1f2; border: 2px dashed #fecdd3; border-radius: 12px; padding: 25px; margin: 30px 0; text-align: center;">
-                            <p style="margin: 0 0 10px 0; color: #9f1239; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.1em;">Your Unique Confirmation Key</p>
-                            <div style="font-family: monospace; font-size: 24px; color: #be123c; font-weight: bold; letter-spacing: 2px; background: white; padding: 10px; border-radius: 8px; display: inline-block;">
-                                ${uniqueKey}
-                            </div>
-                            <p style="margin: 15px 0 0 0; color: #db2777; font-size: 11px;">Please keep this key safe. You will need it for entry at the venue.</p>
-                            
-                            ${registration.additionalNames && (Array.isArray(registration.additionalNames) ? registration.additionalNames.length > 0 : JSON.parse(registration.additionalNames).length > 0) ? `
-                            <div style="margin-top: 15px; border-top: 1px solid #fecdd3; padding-top: 15px;">
-                                <p style="margin: 0; color: #be123c; font-size: 11px; font-weight: bold;">Confirmed Guests:</p>
-                                <p style="margin: 5px 0 0 0; color: #4c0519; font-size: 11px;">
-                                    ${registration.fullName}<br/>
-                                    ${(Array.isArray(registration.additionalNames) ? registration.additionalNames : JSON.parse(registration.additionalNames)).join('<br/>')}
-                                </p>
-                            </div>
-                            ` : ''}
-                        </div>
-                        
-                        <div style="font-size: 14px; line-height: 1.6; color: #881337; background: #fff9fb; padding: 15px; border-radius: 8px;">
-                            <strong>Note:</strong> We are preparing a magical evening for you. Expect soft indulgence, powerful connections, and an atmosphere filled with love and friendship.
-                        </div>
-
-                        <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #ffe4e6; text-align: center;">
-                            <p style="font-size: 13px; color: #be123c; font-weight: bold;">With Love,</p>
-                            <p style="font-size: 13px; color: #be123c; font-weight: bold;">sharedsmilesco</p>
-                            <p style="font-size: 10px; color: #9ca3af; margin-top: 10px;">If you have any questions, please reply to this email.</p>
-                        </div>
-                    </div>
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    </head>
+                    <body style="margin: 0; padding: 0; background-color: #fef2f2; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+                        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fef2f2; padding: 40px 20px;">
+                            <tr>
+                                <td align="center">
+                                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                        
+                                        <!-- Header -->
+                                        <tr>
+                                            <td style="background: linear-gradient(135deg, #be123c 0%, #db2777 100%); padding: 40px 30px; text-align: center;">
+                                                <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 600; letter-spacing: -0.5px;">Registration Confirmed</h1>
+                                                <p style="margin: 10px 0 0 0; color: #fecdd3; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">GALENTINE'S DAY 2026</p>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Body -->
+                                        <tr>
+                                            <td style="padding: 40px 30px;">
+                                                
+                                                <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">Hello <strong>${registration.fullName}</strong> ✨,</p>
+                                                
+                                                <p style="margin: 0 0 20px 0; font-size: 16px; color: #333333; line-height: 1.6;">We're so excited to let you know that your registration for <strong>Galentine's – A Curated Experience Celebrating Womanhood</strong> has been successfully confirmed! 💖</p>
+                                                
+                                                <p style="margin: 0 0 25px 0; font-size: 16px; color: #333333; line-height: 1.6;">Here are the event details for your reference:</p>
+                                                
+                                                <!-- Event Details Box -->
+                                                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #fff1f2; border-left: 4px solid #be123c; border-radius: 8px; margin: 25px 0;">
+                                                    <tr>
+                                                        <td style="padding: 25px;">
+                                                            <p style="margin: 0 0 15px 0; font-size: 16px; color: #be123c; font-weight: bold;">👤 Registered Name: ${registration.fullName}</p>
+                                                            <p style="margin: 0 0 12px 0; font-size: 15px; color: #333333;"><strong style="color: #be123c;">📅 Date:</strong> 20th February 2026</p>
+                                                            <p style="margin: 0 0 12px 0; font-size: 15px; color: #333333;"><strong style="color: #be123c;">⏰ Time:</strong> 11:00 AM onwards</p>
+                                                            <p style="margin: 0 0 12px 0; font-size: 15px; color: #333333;"><strong style="color: #be123c;">🚪 Entry Open Till:</strong> 11:30 AM</p>
+                                                            <p style="margin: 0 0 12px 0; font-size: 15px; color: #333333;"><strong style="color: #be123c;">📍 Venue:</strong> Elo Cafe, Gangapur Road, Nashik</p>
+                                                            <p style="margin: 0 0 12px 0; font-size: 15px; color: #333333;"><strong style="color: #be123c;">👯 Number of Attendees:</strong> ${totalAttendees}</p>
+                                                            <p style="margin: 0; font-size: 15px; color: #333333;"><strong style="color: #be123c;">🎫 Unique ID:</strong> <span style="font-family: 'Courier New', monospace; color: #be123c; font-weight: bold; background-color: #ffffff; padding: 6px 12px; border-radius: 6px; border: 2px solid #fecdd3; display: inline-block; margin-top: 5px; letter-spacing: 1px;">${uniqueKey}</span></p>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                                
+                                                ${guestNamesHtml}
+                                                
+                                                <p style="margin: 25px 0; font-size: 16px; color: #333333; line-height: 1.6;">Get ready for a thoughtfully curated experience filled with warmth, connection, creativity, and celebration of womanhood 🤍</p>
+                                                
+                                                <p style="margin: 25px 0; font-size: 16px; color: #333333; line-height: 1.6; font-weight: 600;">We can't wait to share this beautiful day with you!</p>
+                                                
+                                                <p style="margin: 25px 0; font-size: 15px; color: #666666; line-height: 1.6;">If you have any questions or need assistance, feel free to reach out to us anytime.</p>
+                                                
+                                                <p style="margin: 30px 0 10px 0; font-size: 16px; color: #333333;">See you soon ✨</p>
+                                                
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Footer -->
+                                        <tr>
+                                            <td style="padding: 30px; background-color: #fef2f2; border-top: 1px solid #fecdd3;">
+                                                <p style="margin: 0 0 5px 0; font-size: 15px; color: #be123c; font-weight: 600;">With love,</p>
+                                                <p style="margin: 0 0 15px 0; font-size: 15px; color: #be123c; font-weight: 600;">Team SharedSmilesCo.</p>
+                                                <p style="margin: 0; font-size: 13px; color: #9ca3af; font-style: italic;">Creating moments. Sharing smiles. 💫</p>
+                                            </td>
+                                        </tr>
+                                        
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                    </body>
+                    </html>
                 `,
             });
         }

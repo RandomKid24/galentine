@@ -241,7 +241,7 @@ export default function Home() {
                                 <div className="text-center">
                                     <p className="text-xs text-gray-600 mb-1">Early Bird Seats</p>
                                     <p className="text-lg font-bold text-[#80183b]">
-                                        {seatAvailability?.earlyBird?.available ?? 0}/{seatAvailability?.earlyBird?.total ?? 11}
+                                        {seatAvailability?.earlyBird?.available ?? 0}
                                     </p>
                                     <p className="text-xs text-gray-500">available</p>
                                 </div>
