@@ -111,6 +111,27 @@ export default function RegistrationsPage() {
         }
     };
 
+    const handleReject = async (id: number) => {
+        if (!confirm('Reject this registration? Seats will be restored.')) return;
+        
+        try {
+            const response = await fetch('/api/admin/reject-registration', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ registrationId: id })
+            });
+            const data = await response.json();
+            if (data.success) {
+                alert(`Registration rejected! ${data.seatsRestored} seat(s) restored to ${data.seatPool} pool. ✅`);
+                fetchData();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            alert('Failed to reject registration');
+        }
+    };
+
     const exportToCSV = () => {
         if (filteredRegistrations.length === 0) {
             alert("No registrations to export matching your search.");
@@ -195,15 +216,18 @@ export default function RegistrationsPage() {
 
     const StatusBadge = ({ status }: { status?: string }) => {
         const isConfirmed = status === 'confirmed';
+        const isRejected = status === 'rejected';
         const isPending = status === 'pending' || !status;
         
         return (
             <span className={`px-2 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
                 isConfirmed 
                     ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                    : isRejected
+                    ? 'bg-red-50 text-red-600 border-red-100'
                     : 'bg-amber-50 text-amber-600 border-amber-100'
             }`}>
-                {isConfirmed ? 'Confirmed' : 'Pending Verification'}
+                {isConfirmed ? 'Confirmed' : isRejected ? 'Rejected' : 'Pending Verification'}
             </span>
         );
     };
@@ -330,18 +354,31 @@ export default function RegistrationsPage() {
                                     </div>
 
                                     {/* Actions */}
-                                    <div className="flex items-center gap-3 lg:w-48 justify-end">
+                                    <div className="flex items-center gap-2 lg:w-auto justify-end flex-wrap">
                                         <button
-                                            onClick={() => reg.status !== 'confirmed' && handleConfirm(reg.id)}
-                                            disabled={reg.status === 'confirmed'}
+                                            onClick={() => reg.status !== 'confirmed' && reg.status !== 'rejected' && handleConfirm(reg.id)}
+                                            disabled={reg.status === 'confirmed' || reg.status === 'rejected'}
                                             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-                                                reg.status === 'confirmed'
+                                                reg.status === 'confirmed' || reg.status === 'rejected'
                                                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none'
                                                     : 'bg-rose-600 text-white hover:bg-rose-700 shadow-lg shadow-rose-100'
                                             }`}
                                         >
                                             {reg.status === 'confirmed' ? 'CONFIRMED' : 'CONFIRM'}
                                         </button>
+                                        
+                                        <button
+                                            onClick={() => reg.status !== 'rejected' && reg.status !== 'confirmed' && handleReject(reg.id)}
+                                            disabled={reg.status === 'rejected' || reg.status === 'confirmed'}
+                                            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                                                reg.status === 'rejected' || reg.status === 'confirmed'
+                                                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200 shadow-none'
+                                                    : 'bg-orange-600 text-white hover:bg-orange-700 shadow-lg shadow-orange-100'
+                                            }`}
+                                        >
+                                            {reg.status === 'rejected' ? 'REJECTED' : 'REJECT'}
+                                        </button>
+                                        
                                         {reg?.payment_receipt_url ? (
                                             <button
                                                 onClick={() => setSelectedReceipt(reg.payment_receipt_url)}
