@@ -50,9 +50,9 @@ export default function Home() {
 
                     setSeatAvailability({
                         earlyBird: {
-                            total: earlyBirdConfig?.total_seats || 15,
+                            total: earlyBirdConfig?.total_seats || 11,
                             used: earlyBirdConfig?.used_seats || 0,
-                            available: (earlyBirdConfig?.total_seats || 15) - (earlyBirdConfig?.used_seats || 0)
+                            available: (earlyBirdConfig?.total_seats || 11) - (earlyBirdConfig?.used_seats || 0)
                         },
                         general: {
                             total: generalConfig?.total_seats || 15,
@@ -241,7 +241,7 @@ export default function Home() {
                                 <div className="text-center">
                                     <p className="text-xs text-gray-600 mb-1">Early Bird Seats</p>
                                     <p className="text-lg font-bold text-[#80183b]">
-                                        {seatAvailability?.earlyBird?.available ?? 0}/{seatAvailability?.earlyBird?.total ?? 15}
+                                        {seatAvailability?.earlyBird?.available ?? 0}/{seatAvailability?.earlyBird?.total ?? 11}
                                     </p>
                                     <p className="text-xs text-gray-500">available</p>
                                 </div>
@@ -487,16 +487,14 @@ export default function Home() {
             <footer className="w-full py-16 flex flex-col items-center gap-8 bg-gradient-to-b from-transparent to-[#f8c0ca]/30">
                 <div className="flex flex-col items-center gap-4">
                     <img 
-                        src="/logo.jpeg" 
+                        src="/logo1.png" 
                         alt="sharedsmilesco logo" 
                         className="h-40 w-auto hover:scale-105 transition-all duration-300"
                     />
                     <div className="text-center space-y-2">
-                        <p className="text-[11px] text-gray-500 uppercase tracking-[0.4em] font-bold">🌸 sharedsmilesco — 2026 🌸</p>
-                        <p className="text-[10px] text-gray-400 font-medium pb-2">An exclusive gathering celebrates friendship and love</p>
                         <div className="pt-4 border-t border-pink-200/50 w-full max-w-sm mx-auto">
                             <p className="text-[12px] md:text-[14px] text-gray-400">
-                                © 2026 <a href="https://www.beforth.in/" target="_blank" rel="noopener noreferrer" className="hover:text-[#80183b] transition-colors font-medium underline underline-offset-2">Beforth.in</a> - Go forth with Beforth
+                                © 2026 <a href="https://www.beforth.in/" target="_blank" rel="noopener noreferrer" className="hover:text-[#80183b] transition-colors font-medium underline underline-offset-2">Beforth.in</a> X Sharedsmilesco
                             </p>
                         </div>
                     </div>

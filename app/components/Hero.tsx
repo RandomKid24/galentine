@@ -25,7 +25,7 @@ const Hero: React.FC = () => {
             </div>
 
             <div className="relative z-10 text-center px-4 max-w-4xl">
-                <h2 className="text-4xl md:text-6xl font-medium text-[#4a1024] leading-tight mb-12 drop-shadow-md">
+                <h2 className="text-4xl md:text-6xl font-serif italic tracking-tight font-medium text-[#4a1024] leading-tight mb-12 drop-shadow-md">
                     Galentine's - The curated experience celebrating womanhood
                 </h2>
 

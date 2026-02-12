@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS public.seat_config (
 -- Insert default seat configuration
 INSERT INTO public.seat_config (config_key, total_seats, used_seats)
 VALUES 
-    ('early_bird', 15, 0),
+    ('early_bird', 11, 0),
     ('general', 15, 0)
 ON CONFLICT (config_key) DO NOTHING;
 
